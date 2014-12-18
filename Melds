@@ -1,0 +1,369 @@
+import java.util.Scanner;
+
+public class Melds{
+  
+  private Card [][] cards;
+  
+  public Melds(Card [][] c){
+    cards = c;
+  }
+  
+  /////////////////////////////////////////////////////////////////////////////////////////////////////
+  //Plays a new sequence of Cards
+  
+  public boolean playNewMeld(Cell a, Cell b, Cell c, int suit){
+    int original = 0;
+    while (cards [original][0] != null){
+      original ++;
+    }
+    Card x = a.card;
+    Card y = b.card;
+    Card z = c.card;
+    
+    int an= x.getNum();
+    int bn = y.getNum();
+    int cn = z.getNum();
+    
+    if(bn == 1 && cn == 13 && an != 2){
+      System.out.println("Invalid sequence");
+      return false;
+    }
+    
+    if (bn == 1 && an == 13 && cn != 0){
+      System.out.println("Invalid sequence");
+      return false;
+    }
+    
+    if(an == 13 && cn == 1 && bn != 2){
+      System.out.println("Invalid sequence");
+      return false;
+    }
+    
+    if(bn == 13 && cn == 1 & an != 3){
+      System.out.println("Invalid sequence");
+      return false;
+    }
+    
+    if(an == 1 && bn != cn + 1){
+      System.out.println("Invalid sequence");
+      return false;
+    }
+    
+    if(bn == 1 && cn == 1 && (an != 2 && an != 3)){
+      System.out.println("Invalid sequence");
+      return false;
+    }
+    
+    if (an == 13 && bn != cn + 1){
+      System.out.println("Invalid sequence");
+      return false;
+    }
+    
+    if(bn == 13 && an != cn + 2){
+      System.out.println("Invalid sequence");
+      return false;
+    }
+    
+    if(cn == 13 && an != bn + 1){
+      System.out.println("Invalid sequence");
+      return false;
+    }
+    
+    if(an == 13 && bn == 13){
+      System.out.println("Invalid sequence");
+      return false;
+    }
+    
+    if(bn == 13 && cn == 13){
+      System.out.println("Invalid sequence");
+      return false;
+    }
+    
+    if (an == 13 && cn == 13){
+      System.out.println("Invalid sequence");
+      return false;
+    }
+    
+    if (bn == 1 && (an != 1 && an != 13) && (cn != 1 && cn != 13) && an != cn + 2){
+      System.out.println("Invalid sequence");
+      return false;
+    }
+    
+    if (cn == 1 && (an != 1 && an != 13) && (bn != 1 && bn != 13) && an != bn + 1){
+      System.out.println("Invalid sequence");
+      return false;
+    }
+    
+    if(an != 1 && bn != 1 && cn != 1 && an != 13 && bn != 13 && cn != 13){
+      if(an != bn + 1 && bn != cn + 1){
+        System.out.println("Invalid sequence");
+        return false;
+      }
+    }   
+    
+    if(an == 1 && bn == 1 && cn == 1){
+      System.out.println("Invalid sequence.");
+      return false;
+    }
+    
+    cards[original][0] = x;
+    cards[original][1] = y;
+    cards[original][2] = z;
+    return true;
+  }
+
+  ////////////////////////////////////////////////////////////////////////////////////////////////////
+  //Prints Melds
+  
+  public void print(){
+    System.out.print("Your melds");
+    int count1 = 0; 
+    while(cards[count1][0] != null){
+      count1 ++;
+    }
+    for (int i = 0; i <= count1; i++){
+      int count2 = 0;
+      System.out.println();
+      System.out.print(i+1 + ")" );
+      while(cards[i][count2] != null){
+        count2 ++;
+      }
+      for (int j = 0; j <= count2; j++){
+        System.out.println(cards[i][j]);
+      }
+    }
+  }
+ 
+  ///////////////////////////////////////////////////////////////////////////////////////////////////////
+  //Adds to an Existing Meld
+  
+  public boolean addToMeld(Cell a){
+    System.out.println("This is currently what melds you have.");
+    print();
+    
+    //chooses meld
+    System.out.println("What meld would you like to add to?");
+    final Scanner keyboard = new Scanner(System.in);
+    int toAdd = keyboard.nextInt();
+    toAdd--;
+    //checks to make sure the meld is not already full
+    while (cards[toAdd][13] != null){
+      System.out.println("That meld is already a canastra real!");
+      System.out.println("What meld would you like to add to? If you would not like to add a card to a meld, type 0.");
+      toAdd = keyboard.nextInt();
+      toAdd--;
+      if (toAdd == -1){
+        return false;
+      }
+    }
+    
+    //finds first location that is not occupied by a card in meld
+    int s=0;
+    while(cards[toAdd][s] != null){
+      s++;
+    }
+    
+    //finds location to add card to in meld
+    Card x = a.card;
+    //checks if card being added is not a wild card
+    if (x.getNum() != 1 || x.getNum() != 13){
+      //Checks first and second card to see if wild. Whichever is not wild gets compared by suit with card x to make sure it is a legal move
+      if((!isWild(toAdd, 0) && cards[toAdd][0].getSuit()== x.getSuit()) || (!isWild(toAdd, 1) && cards[toAdd][1].getSuit()== x.getSuit())){
+        //finds location of card that comes before card being inserted into sequence
+        int i = 0;
+        while(cards[toAdd][i].getNum() != x.getNum() + 1 || cards[toAdd][i] != null){
+          i++;
+        }
+        //if that card exists and is not followed by a wild card, move every card after it over one position
+        if (cards[toAdd][i] != null && !isWild(toAdd, i+1)){
+          for(int j=12; j > i; j--){
+            cards[toAdd][j+1] = cards[toAdd][j];
+          }
+          cards[toAdd][i+1] = x;
+          return true;
+        }
+        //if that card exist and it is followed by a wild card, replace wild card, and move it to the end of the meld.
+        else if (cards[toAdd][i] != null && isWild(toAdd, i+1)){
+          cards[toAdd][s] = cards[toAdd][i+1];
+          cards[toAdd][i+1]=x;
+          return true;
+        }
+        //if that card does not exist
+        else if (cards[toAdd][i] == null) {
+          //check if first card follows (in sequence) card being inserted
+          if(cards[toAdd][0].getNum() == x.getNum()-1){
+           for(int j=12; j >= 0; j--){
+            cards[toAdd][j+1] = cards[toAdd][j];
+           }
+           cards[toAdd][0]= x;
+           return true;
+          }
+          //check if last card is a wild and if second to last card is two before card x in sequence
+          else if(isWild(toAdd, s-1) && cards[toAdd][s-2].getNum() == x.getNum()+2){
+            cards[toAdd][s]=x;
+            return true;
+          }
+          //check if first card is a wild and if second carrd is two after in sequence
+          else if(isWild(toAdd, 0) && cards[toAdd][1].getNum()==x.getNum()-2){
+            for(int j=12; j >= 0; j--){
+              cards[toAdd][j+1] = cards[toAdd][j];
+            }
+            cards[toAdd][0]=x;
+            return true;
+          }
+        }
+        //if not, there is nowhere to put this card
+        else{
+          System.out.println("That card cannot legally be placed into selected meld.");
+          return false;
+        }
+      }
+      //if first card(or second card) not wild and suits don't match card cannot be played
+      else{
+        System.out.println("That card cannot legally be placed into selected meld.");
+        return false;
+      }
+    }
+    
+    //if card is a 2, ask if they want to use it as a wild or a 2.
+    else{
+      if(x.getNum()==1){
+        System.out.println("Will you be using this card as a wild? Y for yes or N for no.");
+        String ans = keyboard.nextLine();
+        while (ans != "y" || ans != "Y" || ans != "N" || ans != "n"){
+          System.out.println("Invalid entry.");
+          System.out.println("Will you be using this card as a wild? Y for yes or N for no.");
+          ans = keyboard.nextLine();
+        }
+        if (ans == "n" || ans == "N"){
+          for(int i=0; i < 13; i++){
+            if(cards[toAdd][i].getNum() == 2){
+              cards[toAdd][i+1] = x;
+              return true;
+            }
+          }
+        }
+      }
+      
+      if (wildCheck(toAdd)){
+        System.out.println("There is already a wild card in this meld. Card cannot legally be placed into selected meld");
+        return false;
+      }
+      else{
+        System.out.println("Would you like to add the wild card to the 1) beginning or 2)end of the meld? Please enter 1 or 2.");
+        int ans = keyboard.nextInt();
+        if (ans == 1){
+          for(int j=12; j >= 0; j--){
+              cards[toAdd][j+1] = cards[toAdd][j];
+            }
+          cards[toAdd][0] = x;
+          return true;
+        }
+        if (ans == 2){
+          cards[toAdd][s]= x;
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+  
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  //Returns true if there is a Wild Card in meld
+  
+  public boolean wildCheck(int meld){
+    for(int i = 0; i < 13; i++){
+      if(cards[meld][i] != null && cards[meld][i].getNum() == 13){
+        return true;
+      }
+      if(cards[meld][i] != null && cards[meld][i].getNum() == 1){
+        if(i>=1){
+          if(cards[meld][i-1].getNum() != 2){
+            return true;
+          }
+        }
+        if(i==0){
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+        
+  /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  //Checks if specific card in meld is wild
+    
+    public boolean isWild(int meld, int card){
+      if (cards[meld][card].getNum() != 13 || cards[meld][card].getNum() != 2){
+        return false;
+      }
+      if(cards[meld][card].getNum() == 2){
+        if(card==0){
+          return true;
+        }
+        if(card>0){
+          if(cards[meld][card-1].getNum() == 3 && cards[meld][card].getSuit() == cards[meld][card-1].getSuit()){
+            return false;
+          }
+        }
+      }
+      return true;
+    }
+    
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  // Calculates score
+  
+  public int score(){
+    int s = 0;
+    for(int i = 0; i<36;i++){
+      for(int j = 0; j < 14; j++){
+        if(cards[i][j] != null){
+          if(cards[i][j].getNum() == 13){
+            s = s + 20;
+          }
+          if(cards[i][j].getNum() == 1){
+            s = s + 10;
+          }
+          if(cards[i][j].getNum() == 0){
+            s = s + 15;
+          }
+          if(cards[i][j].getNum() >= 7 && cards[i][j].getNum() <= 12){
+            s = s + 10;
+          }
+          if(cards[i][j].getNum() >= 2 && cards[i][j].getNum() <= 6){
+            s=s+5;
+          }
+        }
+      }
+    }
+    int h = 0;
+    while (cards[h][0] != null){
+      int k = 0;
+      boolean clean = true;
+      int pts = 0;
+      while(cards[h][k+1] != null || k != 11){
+        if(k== 6){
+          pts = 1;
+        }
+        if(k == 11){
+          pts = 2;
+        }
+        if(cards[h][k].getNum() != cards[h][k+1].getNum()-1){
+          clean = false;
+        }
+        k++;
+      }
+      h++;
+      if(pts == 1 && clean == true){
+        s=s+200;
+      }
+      if(pts == 2 && clean == true){
+        s=s+500;
+      }
+      if((pts == 1 || pts == 2) && clean == false){
+        s = s+100;
+      }
+    }
+    return s;
+  }
+}
