@@ -1,0 +1,140 @@
+import java.util.Scanner;
+
+public class BuracoGame{
+  ////////////////////////////////////////////////////////////////////////////////
+  //Starting Deck
+  public static Deck starter(){
+    Card[] start = new Card[109];
+    int i = 0;
+    for(int s = 0; s < 4; s++) {
+      for(int n = 0; n < 13; n++){
+        start[i] = new Card(s, n);
+        i++;
+        start[i] = new Card(s, n);
+        i++;
+      }
+    }
+    for (int j = 0; j <= 4; j++){
+      start[i] = new Card(3, 13);
+      i++;
+    }
+    Deck starting = new Deck(start, i-1);
+    return starting;
+  }
+  
+  ///////////////////////////////////////////////////////////////////////////////////
+  //Hands for players to pick up 
+  public static Hand morto(Deck a){
+    Hand x = new Hand();
+    for(int i = 0; i < 11; i++){
+      Card y = a.drawCard();
+      x.addCardtoHandfromDeck(y);
+    }
+    return x;
+  }
+  
+  ///////////////////////////////////////////////////////////////////////////////////
+  //Game over
+  public static void gameOver(HumanPlayer [] players){
+    int r = 0;
+    String s = "No one";
+    for (HumanPlayer q: players){
+      int h = q.score();
+      String y = q.name;
+      if(r < h){
+        s = q.name;
+        r = h;
+      }
+      System.out.println(y + ": " + h + " pts");
+    }
+    System.out.println("Game over. The winner is " + s + " with score " + r + ".");
+    System.exit(0);
+  }
+  
+  ///////////////////////////////////////////////////////////////////////////////////
+  //Instructions
+  public static void instructions(){
+    //I didn't allow for canastra real, only canastra meia real
+    System.out.println("There are normally 4 players in two fixed partnerships. The deal and play are clockwise.");
+    System.out.println("A 108-card pack is used, consisting of two standard 52-card packs with four wild jokers, known");
+    System.out.println("as curingão. The twos, known as curinga can be used either as wild cards or as natural twos in"); 
+    System.out.println("sequences."); 
+    System.out.println("The card values are:");
+    System.out.println("Each joker: 20 points");
+    System.out.println("Each two: 10 points");
+    System.out.println("Each ace: 15 points");
+    System.out.println("Each K, Q, J, 10, 9 or 8: 10 points");
+    System.out.println("Each 7, 6, 5, 4 or 3: 5 points.");
+    System.out.println();
+    System.out.println("The first dealer is chosen by drawing cards and thereafter the turn to deal passes to the left.");
+    System.out.println("The player to dealer's right cuts the cards and forms two 11-card piles (mortos) from the cut"); 
+    System.out.println("portion: these are put aside to be taken by the first player of each team who runs out of cards.");
+    System.out.println("The dealer deals the cards one at a time from the remainder of the pack: 11 to each player. The");
+    System.out.println("remaining 42 cards are stacked face down to form the draw pile (monte). The game begins with");
+    System.out.println("the discard pile (buraco) empty.");
+    System.out.println();
+    System.out.println("The aim of the game is to score points by putting down melds. Each team keeps its melds together.");
+    System.out.println("Players can add cards to their own team's melds but not to melds put down by their opponents.");
+    System.out.println("A meld consists of a sequence (seguida) of three or more consecutive cards of a suit.");
+    System.out.println("A meld can contain at most one wild card (a joker or a two) as a substitute for a missing card.");
+    System.out.println("A sequence that contains a wild card is dirty (suja): a sequence consisting entirely of natural"); 
+    System.out.println("cards is clean (limpa).");
+    System.out.println("A sequence of seven or more cards is called a canastra, and the team scores a bonus for this.");
+    System.out.println();
+    System.out.println("On a player's turn, the player has two options:");
+    System.out.println("1. Draw a card from the deck.");
+    System.out.println("2. Draw all the cards from the buraco");
+    System.out.println("Either way the player will be forced to discard a card at the end of his/her turn.");
+    System.out.println("The first player who gets rid of the last card from his or her hand picks up takes the first");
+    System.out.println("morto of 11 cards to use as a new hand. The second morto is taken by the first player of the");
+    System.out.println("other team who runs out of cards. After all mortos are gone, when the first player runs out of cards,");
+    System.out.println("score is calculated.");
+    System.out.println();
+    System.out.println("Score is calculated by counting up value of cards in melds, 100 pts for a dirty canastra, 200 ");
+    System.out.println("pts for a clean canastra of under 13 cards, 500 pts for a clean canastra of 13 cards, 100 pts ");
+    System.out.println("if you ended the game, -100 pts if you didn't pick up a morto.");
+    System.out.println();
+    System.out.println();
+  }
+  //////////////////////////////////////////////////////////////////////////////////
+  //Main method
+  public static void main (String[] args){
+    instructions();
+    Deck starter = starter();
+    starter.shuffle();
+    Hand morto1 = morto(starter);
+    Hand morto2 = morto(starter);
+    Hand buraco = new Hand();
+    Card y = starter.drawCard();
+    buraco.addCardtoHandfromDeck(y);
+    System.out.println("How many players will be playing? (2-4)");
+    final Scanner keyboard = new Scanner(System.in);
+    int playercount = keyboard.nextInt();
+    while(playercount < 2 && playercount > 4){
+      System.out.println("You must enter a number between two and four.");
+      playercount = keyboard.nextInt();
+    }
+    HumanPlayer [] players = new HumanPlayer[playercount];
+    for(int i = 0; i < playercount; i++){
+      System.out.println("Player "+ (i+1));
+      Hand new1 = HumanPlayer.drawHand(starter);
+      Melds new2 = HumanPlayer.playArea();
+      String new3 = HumanPlayer.getName();
+      HumanPlayer a = new HumanPlayer(new1, new2, 0, new3);
+      players[i] = a;
+    }
+    
+    int l = 0;
+    while(!starter.isEmpty()){
+      System.out.println("Player "+ (l+1));
+      boolean play = players[l].play(buraco, starter, morto1, morto2);
+      l++;
+      if (l>playercount-1){
+        l = 0;
+      }
+      if (play == false){
+        gameOver(players);
+      }
+    }
+  }
+}
