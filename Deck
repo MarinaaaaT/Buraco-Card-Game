@@ -1,0 +1,50 @@
+import java.util.Random;
+
+public class Deck {
+  
+  private Card[] cards;
+  private int count; //number of cards in deck
+  
+  /////////////////////////////////////////////////////////////////////////////////////////////  
+  //Array of Cards
+  public Deck(Card[] cs, int c){
+    cards=cs;
+    count=c;
+  }
+  ///////////////////////////////////////////////////////////////////////////////////////
+  //Draw card out of deck
+  public Card drawCard(){
+    count = count-1;
+    return cards[count];
+  }
+  
+  //////////////////////////////////////////////////////////////////////////////////////////
+  //Shuffles deck
+  public void shuffle(){
+    Random randomGenerator = new Random();
+    
+    int rand;
+    Card temp;
+    
+    for(int i = count; i > 0; i--){
+      rand = randomGenerator.nextInt(i);
+      temp = cards[i];
+      cards[i] = cards[rand];
+      cards[rand] = temp;
+    }
+  }
+  
+  ///////////////////////////////////////////////////////////////////////////////////////////
+  //Checks if deck is empty
+  public boolean isEmpty(){
+    return count == 0;
+  }
+  
+  ///////////////////////////////////////////////////////////////////////////////////////////
+  //Prints deck
+  public void deckToString(){
+    for (int i = 0; i < count; ++i){
+      System.out.println(cards[i]);
+    }
+  }
+}
