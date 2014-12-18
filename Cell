@@ -1,0 +1,16 @@
+public class Cell{
+  //Creates DLL of Cards
+  
+  Card card;
+  Cell next, prev;
+  
+  Cell(Card c, Cell n, Cell p){
+    card= c;
+    next = n;
+    prev = p;
+  }
+    
+  Cell(){
+    next=prev=this;
+  }
+}
