@@ -1,0 +1,216 @@
+import java.util.Scanner;
+
+public class HumanPlayer{
+  
+  private Hand pHand;
+  private Melds pMelds;
+  private int batidas;
+  String name;
+  
+  public HumanPlayer(Hand p, Melds q, int b, String n){
+    pHand = p;
+    pMelds = q;
+    batidas = b;
+    name = n;
+  }
+  
+  /////////////////////////////////////////////////////////////////////////////////////////////////////////
+  //Pick up hand
+  public static Hand drawHand(Deck d){
+  Hand x = new Hand();
+    for(int i = 0; i < 11; i++){
+      Card y = d.drawCard();
+      x.addCardtoHandfromDeck(y);
+    }
+   return x;
+  }
+  
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////
+  //Creates play area to put down cards
+  public static Melds playArea(){
+    Card [][] c = new Card[36][14];
+    Melds play = new Melds(c);
+    return play;
+  }
+  
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////
+  //Get's player name
+  public static String getName(){
+    final Scanner keyboard = new Scanner(System.in);
+    System.out.println("What is your name?");
+    String a = keyboard.nextLine();
+    System.out.println("You entered " + a + ". Is this correct? 1 for yes. 2 for no.");
+    int b = keyboard.nextInt();
+    while (b!=1 && b!=2){
+      System.out.println("Invalid entry. You entered " + a + ". Is this correct? 1 for yes. 2 for no.");
+      b = keyboard.nextInt();
+    }
+    if (b == 2){
+      getName();
+    }
+    return a;
+  }
+  
+  ///////////////////////////////////////////////////////////////////////////////////////////////////////
+  //
+  public boolean play(Hand buraco, Deck d, Hand morto1, Hand morto2){
+    /*Hand pHand = player.pHand;
+    Melds pMelds = player.pMelds;
+    batidas = player.batidas;*/
+    
+    final Scanner keyboard = new Scanner(System.in);
+    System.out.println("It's your turn.");
+    System.out.println();
+    pHand.sortHand();
+    System.out.println("Your hand");
+    pHand.print();
+    System.out.println();
+    System.out.println("Buraco");
+    buraco.sortHand();
+    buraco.print();
+    System.out.println("Would you like to 1) draw from the deck or 2) pick of the pile from the buraco?");
+    int x = keyboard.nextInt();
+    while(x != 1 && x!= 2){
+      System.out.println("Invalid entry. Would you like to 1) draw from the deck or 2) pick of the pile from the buraco?");
+      x = keyboard.nextInt();
+    }
+    if (x == 1){
+      Card p = d.drawCard();
+      pHand.addCardtoHandfromDeck(p);
+    }
+    if (x == 2){
+      Cell p = buraco.header.next;
+      while (p.card != null){
+        p = buraco.removeCard(p);
+        pHand.addCardtoHand(p);
+        p = buraco.header.next;
+      }
+    }
+    pHand.sortHand();
+    System.out.println();
+    System.out.println("Your hand");
+    pHand.print();
+    
+    pMelds.print();
+    System.out.println("Would you like to play or add to any melds? 1 for yes. 2 for no.");
+    int b = keyboard.nextInt();
+    while (b!=1 && b!= 2){
+      System.out.println("Invalid entry. Would you like to play or add to any melds? Y for yes. N for no.");
+      b = keyboard.nextInt();
+    }
+    while (b == 1){
+      System.out.println("Would you like to 1)play a new meld or 2) add to an existing meld?");
+      int r = keyboard.nextInt();
+      if(r != 1 || r != 2){
+        System.out.println("Invalid entry. Would you like to 1)play a new meld (3 cards) or 2) add to an existing meld?");
+        r = keyboard.nextInt();
+      }
+      if(r == 1){
+        System.out.println("What is the suit of the meld?");
+        int s = Card.getSuitValue();
+        
+        System.out.println("Please provide information for cards played in sequential order. (Ex. Card 1 would be the largest card in the new meld.)");
+        System.out.println("Card 1");
+        int s1 = Card.getSuitValue();
+        int n1 = Card.getNumValue();
+        Card a = new Card(s1, n1);
+        Cell f = pHand.find(a);
+        
+        if (f != pHand.header){
+          System.out.println("Card 2");
+          int s2 = Card.getSuitValue();
+          int n2 = Card.getNumValue();
+          a = new Card(s2, n2);
+          Cell g = pHand.find(a);
+          if (g != pHand.header){
+            System.out.println("Card 3");
+            int s3 = Card.getSuitValue();
+            int n3 = Card.getNumValue();
+            a = new Card(s3, n3);
+            Cell h = pHand.find(a);
+            if(h != pHand.header){
+              boolean rmve = pMelds.playNewMeld(f, g, h, s);
+              if(rmve = true){
+                pHand.removeCard(f);
+                pHand.removeCard(g);
+                pHand.removeCard(h);
+              }
+            }
+          }
+        }
+      }
+    
+      if(r == 2){
+        int v = Card.getSuitValue();
+        int w = Card.getNumValue();
+        Card u = new Card(v, w);
+        Cell u1 = pHand.find(u);
+        
+        if(u1 != pHand.header){
+          boolean rmve = pMelds.addToMeld(u1);
+          if(rmve == true){
+            pHand.removeCard(u1);
+          }
+        }
+      }
+      
+      if(pHand.isEmpty()){
+        batidas++;
+        if(morto1 != null){
+          pHand = morto1;
+          morto1 = null;
+        }
+        if(morto1 == null && morto2 != null){
+          pHand = morto2;
+          morto2 = null;
+        }
+        if(morto1 == null && morto2 == null){
+          return false;
+        }
+      }
+      
+      pHand.print();
+      System.out.println("Would you like to play another meld or add to another melds? 1 for yes. 2 for no.");
+      b = keyboard.nextInt();
+      while (b!= 1 && b != 2){
+        System.out.println("Invalid entry. Would you like to play another or add to another melds? Y for yes. N for no.");
+        b = keyboard.nextInt();
+      }
+    }
+    
+    System.out.println("Please pick a card to throw away.");
+    pHand.print();
+    int i = Card.getSuitValue();
+    int j = Card.getNumValue();
+    Card c = new Card(i, j);
+    Cell p = pHand.find(c);
+    while (p.card == null){
+      System.out.println("Please pick a card to throw away.");
+      pHand.print();
+      i = Card.getSuitValue();
+      j = Card.getNumValue();
+      c = new Card(i, j);
+      p = pHand.find(c);
+    }
+    pHand.removeCard(p);
+    buraco.addCardtoHand(p);
+    
+    System.out.println("End turn.");
+    System.out.println();
+    return true;
+  }
+  
+  ///////////////////////////////////////////////////////////////////////////////////////////////////////
+  //Calculates score
+  
+  public int score(){
+    int s  = pMelds.score();
+    if(batidas == 0){
+      s = s-100;
+    }
+    if(batidas == 2){
+      s = s+100;
+    }
+  return s;
+  }
+}
