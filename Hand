@@ -1,0 +1,153 @@
+public class Hand{
+  
+  //This class is used for a players hand. However, it can also be used for the collection
+  //of cards that is left in the middle of the table called the Buraco.
+  
+  //Makes a header for the Hand DLL
+  Cell header = new Cell();
+  
+  //////////////////////////////////////////////////////////////////////////////////
+  //Checks if the hand is empty
+  public boolean isEmpty(){
+    if(header.next == header){
+      return true;
+    }
+    else{
+      return false;
+    }
+  }
+  
+  //////////////////////////////////////////////////////////////////////////////////
+  //Removes card from hand or buraco
+  public Cell removeCard(Cell a){
+    a.prev.next = a.next;
+    a.next.prev = a.prev;
+    return a;
+  }
+  
+  //////////////////////////////////////////////////////////////////////////////////
+  //Moves cards between hands and buracos
+  public void addCardtoHand(Cell b){
+    b.prev = header.prev;
+    b.next = header;
+    header.prev=b;
+    b.prev.next = b;
+  }
+  
+  //////////////////////////////////////////////////////////////////////////////////
+  //Adds card from hand to deck
+  public void addCardtoHandfromDeck(Card c){
+    Cell d = new Cell(c, header, header.prev);
+    d.prev.next = d;
+    d.next.prev = d;
+  }
+  
+  //////////////////////////////////////////////////////////////////////////////////
+  //Moves card down list
+  public static void moveCardDown(Cell p){
+    Cell temp = p.next.next;
+    p.next.next = p;
+    p.next.prev = p.prev;
+    p.prev.next = p.next;
+    p.prev = p.next;
+    p.next = temp;
+    temp.prev=p;
+  }
+  
+   //////////////////////////////////////////////////////////////////////////////////
+  //Checks if the cards are in order by suit
+  public boolean suitsInOrder(){
+    Cell p = header.next;
+    while (p.next != header){
+      if (p.next != header && p.card.getSuit() <= p.next.card.getSuit()){
+        p = p.next;
+      }
+      else {
+        return false;
+      }
+    }
+    return true;
+  }
+  
+  //////////////////////////////////////////////////////////////////////////////////  
+  //Sorts the cards by suits
+  public void sortSuits(){
+    Cell p = header.next;
+    while(!suitsInOrder()) {
+      if (p.card.getSuit() > p.next.card.getSuit()){
+        moveCardDown(p);
+      }
+      p=p.next;
+      if (p.next == header || p == header){
+        p=header.next;
+      }
+    }
+  }
+  
+   //////////////////////////////////////////////////////////////////////////////////
+  //Checks if the cards are in order by 
+  public boolean numInOrder(){
+    //Checks if within each suit 
+    Cell p=header.next;
+    while (p.next != header){
+      if (p.card.getSuit() == p.next.card.getSuit()){
+        if (p.card.getNum() > p.next.card.getNum()){
+          return false;
+        }
+      }
+      p=p.next;
+    }
+    return true;
+  }
+  
+  //////////////////////////////////////////////////////////////////////////////////
+  //Sorts the cards by number value
+  public void sortNum(){
+    Cell p = header.next;
+    while (!numInOrder()){
+      if (p.card.getSuit() == p.next.card.getSuit()){
+        if (p.card.getNum() > p.next.card.getNum()){
+          moveCardDown(p);
+        }
+      }
+      p = p.next;
+      if (p.next == header || p == header){
+        p=header.next;
+      }
+    }
+  }
+  
+  //////////////////////////////////////////////////////////////////////////////////
+  //Sorts Hand
+  
+  public void sortHand(){
+    sortSuits();
+    sortNum();
+  }
+  
+  //////////////////////////////////////////////////////////////////////////////////
+  //Finds Card in Hand
+  
+  public Cell find(Card a){
+    Cell p = header.next;
+    while (p.next != header){
+      if(p.card.getSuit() == a.getSuit() && p.card.getNum() == a.getNum()){
+        return p;
+      }
+      p=p.next;
+    }
+    System.out.println("Card not found.");
+    return header;
+  }
+  
+  //////////////////////////////////////////////////////////////////////////////////
+  //Prints Hand
+  public void print(){
+    Cell p = header.next;
+    while(p!= header){
+      System.out.println(p.card);
+      p=p.next;
+    }
+    System.out.println();
+  }
+}
